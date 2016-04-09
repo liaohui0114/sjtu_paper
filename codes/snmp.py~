@@ -79,7 +79,7 @@ if __name__=="__main__":
 
     #f.writelines(["liaohui","xuehua"])
     while True:
-        f = open("../log/systeminfo.txt","a")
+        f = open("log/systeminfo.txt","a")
         sysinfo = SystemModule.SysInfo()
         (curtimestamp,curtime) = sysinfo.GetCurrentTime()
         cpupercent =  sysinfo.GetCPUPercent(1)  #sleep 1s

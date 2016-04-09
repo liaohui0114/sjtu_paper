@@ -29,8 +29,8 @@ class MyClient:
     def download(self,file_name=None):
         print '###################start down:'+file_name
         self.sock.sendall('file:%s'%(file_name)) #send file_name to server and waiting for data
-        savedFileName = str(time.time()).replace('.','-')+"_"+file_name
-        f = open("../download/%s"%(savedFileName), 'wb')   
+        savedFileName = "../download/"+str(time.time()).replace('.','-')+"_"+file_name
+        f = open(savedFileName, 'wb')   
         while True:   
             data = self.sock.recv(1024)
             if not data:

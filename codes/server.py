@@ -1,6 +1,6 @@
 #!/usr/bin/python 
 #coding:utf-8 
-import SocketServer, time  
+import SocketServer, time,sys
   
 class MyServer(SocketServer.BaseRequestHandler):
   
@@ -37,6 +37,7 @@ class MyServer(SocketServer.BaseRequestHandler):
         print 'Disconnected from', self.client_address   
   
 if __name__ == '__main__':   
-    print 'Server is started\nwaiting for connection...\n'   
-    srv = SocketServer.ThreadingTCPServer(('localhost', 50000), MyServer)   
+    print 'Server is started\nwaiting for connection...\n'
+    serverip = sys.argv[1]
+    srv = SocketServer.ThreadingTCPServer((serverip, 50000), MyServer)   
     srv.serve_forever()  
