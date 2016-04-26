@@ -65,9 +65,9 @@ def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
         client = MyClient(server_ip=serverip)   
         if client.connect():
             #print "filename:"+file_name
-            
+            taskingQueueDic[taskid] = True #to start task
             tmpTuple = (start_time,end_time,intervalTime,filename,filesize) = client.download(file_name)
-            
+            taskingQueueDic[taskid] = False  #this task is finished
             f = open("../log/downloadinfo-%s.txt"%(file_name),"a")
             downinfo = "%s\t%s\t%s\t%s\t%s\t%s\n"%(start_time,end_time,intervalTime,filename,filesize,serverip)
             f.write(downinfo)
@@ -90,21 +90,15 @@ if __name__ == '__main__':
         threads.append(threading.Thread(None))
 #     for i in threads:
 #         print i,type(i)
-
     #init task queue
-#     for k,v in taskQueueDic.items():
-#         taskQueue.put(k)
-
-    #change to 200 times
-    task_num = 200
-    for i in xrange(0,task_num):
-        taskQueue.put(i)
+    for k,v in taskQueueDic.items():
+        taskQueue.put(k)
         
     #taskQueue.put(10)
-    while task_num > 0:
+    while True:
         
         #if not taskQueue.empty():
-        taskid = taskQueue.get()%10 #block until task was not empty
+        taskid = taskQueue.get() #block until task was not empty
         
         #to find a thread which is idle
         for num,item in enumerate(threads):
@@ -113,16 +107,14 @@ if __name__ == '__main__':
             
                 print 'task_id:'+str(taskid)
                 file_name = taskQueueDic[taskid]
-                #addrPos = random.randint(0,len(fileAddrDic[file_name])-1) #rand select addr of the file
-                addrPos = random.randint(0,0)
+                addrPos = random.randint(0,len(fileAddrDic[file_name])-1) #rand select addr of the file
                 file_addr = fileAddrDic[file_name][addrPos]
                 item = threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr))
                 item.start()
                 break
                     
-        task_num = task_num - 1
+        
         #time.sleep(1)        
 
          
     
-
