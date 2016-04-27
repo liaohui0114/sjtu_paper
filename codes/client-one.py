@@ -95,8 +95,8 @@ if __name__ == '__main__':
 #     for k,v in taskQueueDic.items():
 #         taskQueue.put(k)
 
-    #change to 200 times
-    task_num = 200
+    #change to 40 times
+    task_num = TASK_NUMBER
     for i in xrange(0,task_num):
         taskQueue.put(i)
         
@@ -105,6 +105,8 @@ if __name__ == '__main__':
         
         #if not taskQueue.empty():
         taskid = taskQueue.get()%10 #block until task was not empty
+
+        hasIdle = False
         
         #to find a thread which is idle
         for num,item in enumerate(threads):
@@ -118,10 +120,13 @@ if __name__ == '__main__':
                 file_addr = fileAddrDic[file_name][addrPos]
                 item = threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr))
                 item.start()
+
+                hasIdle = True
                 break
-                    
-        task_num = task_num - 1
-        #time.sleep(1)        
+        if hasIdle == True:            
+            task_num = task_num - 1
+        else:
+            time.sleep(1)        
 
          
     

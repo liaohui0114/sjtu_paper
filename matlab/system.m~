@@ -179,22 +179,12 @@ grid on;
 
 
 %%%%%%%%to get total time of every%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-prefix_down_list= {'../log/192.168.3.6/','../log/192.168.3.6-load/'};
-total_time_by_ip = [];
-for counter=1:length(prefix_down_list);
-    tmp_total = 0;
-   for i=1:length(file_list);
-    tmp_downinfo_name = strcat(prefix_down_list{counter},'downloadinfo-',file_list{i},'.txt');
+prefix_down_list= {'../log/192.168.3.6-load/','../log/192.168.3.6'}
+for counter=1:length(file_list);
+    downinfo_name = strcat(prefix_downinfo,'downloadinfo-',file_list{counter},'.txt');
     
-    [start_time,end_time,intervalTime,filename,filesize,server_ip]=textread(tmp_downinfo_name,'%f%f%f%s%f%s');
-    tmp_total = tmp_total+sum(intervalTime);
-   end; 
-   total_time_by_ip = [total_time_by_ip,tmp_total];
+    [start_time,end_time,intervalTime,filename,filesize,server_ip]=textread(tmpInfoStr,'%f%f%f%s%f%s');
 end;
-
-figure(3);
-bar(total_time_by_ip);
-grid on;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
