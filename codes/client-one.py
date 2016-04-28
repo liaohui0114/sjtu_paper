@@ -11,6 +11,36 @@ from variable import *
 taskQueue = Queue.Queue(0)
 taskCounter = 1
 
+######################scheduler####################################################
+#target=0:by net_send;1:by_recv;2:by delay
+def getMinIP(monitor_dict,target=0):
+    tmp = sys.maxint
+    tmp_ip = ''
+    for key,val in monitor_dict.items():
+        if int(val[0])<tmp:
+            tmp = val[0]
+            tmp_ip = key 
+    return tmp_ip
+
+def monitorScheduler(ip_list,isScheduled = False):
+    if not isScheduled:
+        return ip_list[random.randint(0,len(ip_list)-1)] #return random ip from ip_list
+
+    #scheduling
+    monitor_dict = {}
+    for ipaddr in ip_list:
+        f = open("../log/monitorinfo-%s.txt"%(ipaddr),"r") #########################
+        last_line = f.readlines()[-1]
+        f.close()
+
+        monitor_info = last_line.split()
+        monitor_dict[ipaddr] = monitor_info
+    #print monitor_dict
+    tmp_ip = getMinIP(monitor_dict,0)
+    #print 'bbbb',tmp_ip
+    return tmp_ip
+################################################################################
+    
 
 
 class MyClient:   
@@ -116,8 +146,10 @@ if __name__ == '__main__':
                 print 'task_id:'+str(taskid)
                 file_name = taskQueueDic[taskid]
                 #addrPos = random.randint(0,len(fileAddrDic[file_name])-1) #rand select addr of the file
-                addrPos = random.randint(0,0)
-                file_addr = fileAddrDic[file_name][addrPos]
+                #addrPos = random.randint(0,0)
+                #file_addr = fileAddrDic[file_name][addrPos]
+                file_addr = monitorScheduler(fileAddrDic[file_name],True) ########scheduler##########
+                #print 'fffffffffffffffffffffffffffffffffffff',file_addr
                 item = threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr))
                 item.start()
 

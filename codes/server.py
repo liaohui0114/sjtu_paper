@@ -1,7 +1,18 @@
 #!/usr/bin/python 
 #coding:utf-8 
-import SocketServer, time,sys
-  
+import SocketServer
+import time,sys,json
+import SystemModule
+from variable import *
+
+def getMonitor():
+    sysinfo = SystemModule.SysInfo()
+    netinfo = sysinfo.GetNetworkIOInterval(1) ##sleep 1s
+    netbytesend = netinfo[0]
+    netbyterecv = netinfo[1]
+    return (netbytesend,netbyterecv)
+
+
 class MyServer(SocketServer.BaseRequestHandler):
   
     def handle(self):   
@@ -28,7 +39,14 @@ class MyServer(SocketServer.BaseRequestHandler):
                 self.request.sendall('EOF')
                 
                 #self.request.close() 
-                break            
+                break
+            elif receivedData.startswith('monitor'):
+                (net_send,net_recv) = getMonitor()
+                monitor_info = {KEY_NET_SEND:net_send,KEY_NET_RECV:net_recv}
+                #print 'monitor_info:',monitor_info
+                self.request.sendall(json.dumps(monitor_info))
+                # send monitor info to agent
+                break;
             elif receivedData == 'bye':   
                 break  
   
