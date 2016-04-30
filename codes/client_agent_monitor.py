@@ -66,7 +66,7 @@ def monitorThread(serverip=SOCKET_SERVER_IP):
         print 'eee:except'   
     
     f = open("../log/monitorinfo-%s.txt"%(serverip),"a") #########################
-    mi = "%s\t%s\t%s\n"%(info[KEY_NET_SEND],info[KEY_NET_RECV],info[KEY_NET_DELAY])
+    mi = "%s\t%s\t%s\t%s\n"%(info[KEY_NET_SEND],info[KEY_NET_RECV],info[KEY_NET_DELAY],start_time)
     f.write(mi)
     f.flush()
     f.close()    
@@ -82,7 +82,7 @@ if __name__ == '__main__':
             item = threading.Thread(target=monitorThread,args=(ipaddr,))
             item.start()
             item.join()
-        time.sleep(3)
+        time.sleep(1)
      
 
          

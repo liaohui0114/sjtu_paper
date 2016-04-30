@@ -17,8 +17,8 @@ def getMinIP(monitor_dict,target=0):
     tmp = sys.maxint
     tmp_ip = ''
     for key,val in monitor_dict.items():
-        if int(val[0])<tmp:
-            tmp = val[0]
+        if float(val[0])<tmp:
+            tmp = float(val[0])
             tmp_ip = key 
     return tmp_ip
 
@@ -158,7 +158,8 @@ if __name__ == '__main__':
         if hasIdle == True:            
             task_num = task_num - 1
         else:
-            time.sleep(1)        
+            time.sleep(1)
+        time.sleep(1)     
 
          
     
