@@ -8,9 +8,35 @@ import Queue
 from variable import *
 
 
-taskQueue = Queue.Queue(0)
+taskQueue = Queue.Queue()
 taskCounter = 1
 
+######################scheduler####################################################
+#select n=erasure_code_num's ip from ip_list
+def monitorScheduler(ip_list,erasure_code_num=1,isScheduled = False):
+    if not isScheduled:
+        return random.sample(ip_list,erasure_code_num) #return random erasure_code_num's ip from ip_list
+
+    #scheduling
+    monitor_dict = {}
+    for ipaddr in ip_list:
+        f = open("../log/monitorinfo-%s.txt"%(ipaddr),"r") #########################
+        last_line = f.readlines()[-1]
+        f.close()
+        monitor_info = last_line.split()
+        monitor_dict[ipaddr] = monitor_info
+    #print monitor_dict
+
+    ##d[1][0]:by net_send;d[1][1]:by_recv;2:by delay
+    tmp_ip_list = sorted(monitor_dict.items(),key=lambda d:d[1][0]) #sorted by value[0](d[0]:key,d[1]:values) by ascend
+    #print tmp_ip_list
+    rtn_ip_list = []
+    for i in xrange(0,erasure_code_num):
+        rtn_ip_list.append(tmp_ip_list[i][0])
+    #print 'ip_list:iiiiiiiiiiiiiiiiiiii::::',rtn_ip_list
+    return rtn_ip_list
+################################################################################
+    
 
 
 class MyClient:   
@@ -65,9 +91,9 @@ def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
         client = MyClient(server_ip=serverip)   
         if client.connect():
             #print "filename:"+file_name
-            taskingQueueDic[taskid] = True #to start task
+            
             tmpTuple = (start_time,end_time,intervalTime,filename,filesize) = client.download(file_name)
-            taskingQueueDic[taskid] = False  #this task is finished
+            
             f = open("../log/downloadinfo-%s.txt"%(file_name),"a")
             downinfo = "%s\t%s\t%s\t%s\t%s\t%s\n"%(start_time,end_time,intervalTime,filename,filesize,serverip)
             f.write(downinfo)
@@ -86,35 +112,40 @@ def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
 if __name__ == '__main__':
     #initial threads
     threads = []
-    for i in range(1,THREAD_NUM+1):
+    for i in range(0,THREAD_NUM):
         threads.append(threading.Thread(None))
 #     for i in threads:
 #         print i,type(i)
+
     #init task queue
-    for k,v in taskQueueDic.items():
-        taskQueue.put(k)
+#     for k,v in taskQueueDic.items():
+#         taskQueue.put(k)
+
+    #change to 40 times
+    task_num = 1
+    for i in xrange(0,task_num):
+        taskQueue.put(i)
         
     #taskQueue.put(10)
-    while True:
-        
-        #if not taskQueue.empty():
-        taskid = taskQueue.get() #block until task was not empty
-        
+    while task_num > 0:
+        taskid = 9#taskQueue.get()%10 #block until task was not empty
+        #print 'tasktttttttttttttttttt:',task_num,taskid
+        file_name = taskQueueDic[taskid]
+        file_addr_list = monitorScheduler(fileAddrDic[file_name],ERASURE_CODE,True) ########scheduler##########
+        print 'fffffffffffffffffffffffffffffffffffff',file_addr_list  
         #to find a thread which is idle
-        for num,item in enumerate(threads):
-            if not item.is_alive():
-            #to avoid multi threads doing one task
-            
-                print 'task_id:'+str(taskid)
-                file_name = taskQueueDic[taskid]
-                addrPos = random.randint(0,len(fileAddrDic[file_name])-1) #rand select addr of the file
-                file_addr = fileAddrDic[file_name][addrPos]
-                item = threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr))
-                item.start()
-                break
-                    
+        thread_list = []
+        for index in xrange(0,ERASURE_CODE):    
+            thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
         
-        #time.sleep(1)        
+        for index in xrange(0,len(thread_list)):
+            thread_list[index].start()
+        for index in xrange(0,len(thread_list)):
+            thread_list[index].join()  #block until all threads are done
 
+        
+        task_num = task_num - 1
          
     
+
+
