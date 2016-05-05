@@ -82,7 +82,7 @@ if __name__ == '__main__':
             item = threading.Thread(target=monitorThread,args=(ipaddr,))
             item.start()
             item.join()
-        time.sleep(1)
+        #time.sleep(1)
      
 
          

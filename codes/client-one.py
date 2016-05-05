@@ -8,7 +8,7 @@ import Queue
 from variable import *
 
 
-taskQueue = Queue.Queue(0)
+taskQueue = Queue.Queue()
 taskCounter = 1
 
 ######################scheduler####################################################
@@ -116,7 +116,7 @@ def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
 if __name__ == '__main__':
     #initial threads
     threads = []
-    for i in range(1,THREAD_NUM+1):
+    for i in range(0,THREAD_NUM):
         threads.append(threading.Thread(None))
 #     for i in threads:
 #         print i,type(i)
@@ -134,24 +134,23 @@ if __name__ == '__main__':
     while task_num > 0:
         
         #if not taskQueue.empty():
-        taskid = taskQueue.get()%10 #block until task was not empty
 
         hasIdle = False
         
         #to find a thread which is idle
-        for num,item in enumerate(threads):
-            if not item.is_alive():
+        for index in range(0,len(threads)):
+            if not threads[index].is_alive():
             #to avoid multi threads doing one task
-            
-                print 'task_id:'+str(taskid)
+                taskid = taskQueue.get()%10 #block until task was not empty
+                #print 'tasktttttttttttttttttt:',task_num,taskid
                 file_name = taskQueueDic[taskid]
                 #addrPos = random.randint(0,len(fileAddrDic[file_name])-1) #rand select addr of the file
                 #addrPos = random.randint(0,0)
                 #file_addr = fileAddrDic[file_name][addrPos]
-                file_addr = monitorScheduler(fileAddrDic[file_name],True) ########scheduler##########
+                file_addr = monitorScheduler(fileAddrDic[file_name],False) ########scheduler##########
                 #print 'fffffffffffffffffffffffffffffffffffff',file_addr
-                item = threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr))
-                item.start()
+                threads[index] = threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr))
+                threads[index].start()
 
                 hasIdle = True
                 break
@@ -159,8 +158,9 @@ if __name__ == '__main__':
             task_num = task_num - 1
         else:
             time.sleep(1)
-        time.sleep(1)     
+        #time.sleep(1)     
 
          
     
+
 

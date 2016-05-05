@@ -15,7 +15,7 @@
 % .  Point 
 % x    Cross
 % 'square' or s    Square 
-% 'diamond' or d    Diamond
+% 'diamond' or d    Diamondvi
 % ^  Upward-pointing triangle
 % v   Downward-pointing triangle
 % >  Right-pointing triangle
@@ -26,18 +26,18 @@
 %description:to get system information
 
 %%%%%%%%%%%%global variables%%%%%%%%%%%%%%
-%serverAddr = {'192.168.3.6','192.168.3.7'};
+serverAddr = {'192.168.3.6','192.168.3.7','192.168.3.8'};
 %serverAddr = {'192.168.3.6'};
 %serverAddr = {'192.168.3.7'};
-serverAddr = {'127.0.0.1'};
-server_color = {'g','r'}
+%serverAddr = {'127.0.0.1'};
+server_color = {'g','r','k'}
 %serverAddr(3) = cellstr('123')
 %serverAddr{3} = 'liaohui';
 file_list = {'0.png','1.jpg','2.zip','3.zip','4.tar.gz','5.zip','6.deb','7.tgz','8.mkv','9.mkv'};
-%prefix_downinfo = '../log/remote-0429/40/normal/192.168.3.5/log/';
-prefix_downinfo = '../log/'
-%prefix_down_list= {'../log/remote-0429/80/normal/192.168.3.5/log/','../log/remote-0429/80/scheduled/192.168.3.5/log/'};
-prefix_down_list = {'../log/'};
+prefix_downinfo = '../log/remote-0504/40-5/scheduled/192.168.3.5/log/';
+%prefix_downinfo = '../log/'
+prefix_down_list= {'../log/remote-0504/40-5/normal/192.168.3.5/log/','../log/remote-0504/40-5/scheduled/192.168.3.5/log/'};
+%prefix_down_list = {'../log/'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -105,7 +105,7 @@ for counter=1:length(file_list);
     
     %%%%%monitor info%%%%
     for i=1:length(serverAddr);
-        [net_send,net_recv,net_delay,net_timestamp] = textread(strcat(prefix_downinfo,'monitorinfo-',serverAddr{i},'.txt'),'%f\t%f\t%f\t%f',-1)
+        [net_send,net_recv,net_delay,net_timestamp] = textread(strcat(prefix_downinfo,'monitorinfo-',serverAddr{i},'.txt'),'%f\t%f\t%f\t%f',-1);
         net_send = changeArray(net_send,10,100); %lower than 100
         plot(net_timestamp,net_send,server_color{i});
         hold on;
@@ -127,7 +127,7 @@ for counter=1:length(file_list);
     tmp_total = 0;
     for i=1:length(logsByAddr);
         logsByAddr(i).intervalTime
-        tmp_total = tmp_total + sum(logsByAddr(i).intervalTime)
+        tmp_total = tmp_total + sum(logsByAddr(i).intervalTime);
         
     end;
     file_total_time = [file_total_time,tmp_total];
@@ -143,7 +143,6 @@ ylabel('delay or % of usage');
 
 
 
-file_total_time
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 bar_list = [];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -181,7 +180,6 @@ figure(3);
 bar(total_time_by_ip);
 grid on;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %{
