@@ -125,31 +125,47 @@ if __name__ == '__main__':
 #         taskQueue.put(k)
 
     #change to 40 times
-    task_num = 1
-    for i in xrange(0,task_num):
-        taskQueue.put(i)
-        
+    
+    # for i in xrange(0,task_num):
+    #     taskQueue.put(i)
+    schedulable = {'normal':False,'scheduled':True}
     #taskQueue.put(10)
-    while task_num > 0:
-        taskid = 9#taskQueue.get()%10 #block until task was not empty
-        #print 'tasktttttttttttttttttt:',task_num,taskid
-        file_name = taskQueueDic[taskid]
-        file_addr_list = monitorScheduler(fileAddrDic[file_name],False) ########scheduler##########
-        print 'fffffffffffffffffffffffffffffffffffff',file_addr_list  
- 
-        st = time.time()
-        thread_list = []
-        for index in xrange(0,ERASURE_CODE):    
-            thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
-        
-        for index in xrange(0,len(thread_list)):
-            thread_list[index].start()
-        for index in xrange(0,len(thread_list)):
-            thread_list[index].join()  #block until all threads are done
+    for key,val in schedulable.items():
+        task_num = 1
+        while task_num > 0:
+            for counter in xrange(0,10):
+                taskid = counter#taskQueue.get()%10 #block until task was not empty
+                #print 'tasktttttttttttttttttt:',task_num,taskid
+                file_name = taskQueueDic[taskid]
+                file_addr_list = monitorScheduler(fileAddrDic[file_name],val) ########scheduler##########
+                print 'fffffffffffffffffffffffffffffffffffff',file_addr_list  
+         
+                st = time.time()
+                thread_list = []
+                for index in xrange(0,ERASURE_CODE):    
+                    thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
+                
+                for index in xrange(0,len(thread_list)):
+                    thread_list[index].start()
+                for index in xrange(0,len(thread_list)):
+                    thread_list[index].join()  #block until all threads are done
+                
+                et = time.time()
+                delay = et-st
+                #print 'delay:',delay
+                tmp_file_name =  "../log/erasure_code_4_2_%s_%s.txt"%(key,file_name)
+                #print tmp_file_name
 
-        et = time.time()
-        print 'delay:',et-st
-        task_num = task_num - 1
+                f = open(tmp_file_name,"a")
+                downinfo = "%s\t%s\t%s\t%s\t%s\n"%(st,et,delay,file_addr_list[0],file_addr_list[1])
+                f.write(downinfo)
+                f.flush()
+                f.close()
+
+                time.sleep(10)
+
+            task_num = task_num - 1
+            time.sleep(10)
          
     
 
