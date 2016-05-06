@@ -74,15 +74,16 @@ def monitorThread(serverip=SOCKET_SERVER_IP):
 
 if __name__ == '__main__':
     #initial threads
+    ip_list = addr_list[0:ERASURE_CODE_N]
     while True:
-        
-        for index,ipaddr in enumerate(addr_list):
-            #if not item.is_alive():
-
-            item = threading.Thread(target=monitorThread,args=(ipaddr,))
+        thread_list = []
+        for index,ipaddr in enumerate(ip_list):
+            thread_list.append(threading.Thread(target=monitorThread,args=(ipaddr,)))
+        for item in thread_list:
             item.start()
+        for item in thread_list:
             item.join()
-        #time.sleep(1)
+        time.sleep(5)
      
 
          

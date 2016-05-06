@@ -154,11 +154,11 @@ if __name__ == '__main__':
 
                 hasIdle = True
                 break
-        if hasIdle == True:            
+        if hasIdle == True:
+            time.sleep(0.5)            
             task_num = task_num - 1
         else:
-            time.sleep(1)
-        #time.sleep(1)     
+            time.sleep(1)    
 
          
     

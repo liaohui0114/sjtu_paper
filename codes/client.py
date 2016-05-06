@@ -12,10 +12,13 @@ taskQueue = Queue.Queue()
 taskCounter = 1
 
 ######################scheduler####################################################
-#select n=erasure_code_num's ip from ip_list
-def monitorScheduler(ip_list,erasure_code_num=1,isScheduled = False):
+#erasure code:(n,k) = (Erasure_code_n,erasure_code,k)
+def monitorScheduler(ip_list,isScheduled = False):
+    #print 'ip_list,11111111111',ip_list
+    ip_list = ip_list[0:ERASURE_CODE_N]
+    #print 'ip_list,22222222222',ip_list
     if not isScheduled:
-        return random.sample(ip_list,erasure_code_num) #return random erasure_code_num's ip from ip_list
+        return random.sample(ip_list,ERASURE_CODE_K) #return random erasure_code_num's ip from ip_list
 
     #scheduling
     monitor_dict = {}
@@ -31,7 +34,7 @@ def monitorScheduler(ip_list,erasure_code_num=1,isScheduled = False):
     tmp_ip_list = sorted(monitor_dict.items(),key=lambda d:d[1][0]) #sorted by value[0](d[0]:key,d[1]:values) by ascend
     #print tmp_ip_list
     rtn_ip_list = []
-    for i in xrange(0,erasure_code_num):
+    for i in xrange(0,ERASURE_CODE_K):
         rtn_ip_list.append(tmp_ip_list[i][0])
     #print 'ip_list:iiiiiiiiiiiiiiiiiiii::::',rtn_ip_list
     return rtn_ip_list
@@ -131,9 +134,10 @@ if __name__ == '__main__':
         taskid = 9#taskQueue.get()%10 #block until task was not empty
         #print 'tasktttttttttttttttttt:',task_num,taskid
         file_name = taskQueueDic[taskid]
-        file_addr_list = monitorScheduler(fileAddrDic[file_name],ERASURE_CODE,True) ########scheduler##########
+        file_addr_list = monitorScheduler(fileAddrDic[file_name],False) ########scheduler##########
         print 'fffffffffffffffffffffffffffffffffffff',file_addr_list  
-        #to find a thread which is idle
+ 
+        st = time.time()
         thread_list = []
         for index in xrange(0,ERASURE_CODE):    
             thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
@@ -143,7 +147,8 @@ if __name__ == '__main__':
         for index in xrange(0,len(thread_list)):
             thread_list[index].join()  #block until all threads are done
 
-        
+        et = time.time()
+        print 'delay:',et-st
         task_num = task_num - 1
          
     
