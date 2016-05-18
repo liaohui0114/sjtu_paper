@@ -60,7 +60,7 @@ def monitorThread(serverip=SOCKET_SERVER_IP):
                 info[KEY_NET_SEND] = monitorinfo[KEY_NET_SEND]
                 info[KEY_NET_RECV] = monitorinfo[KEY_NET_RECV]
                 info[KEY_NET_DELAY] = end_time - start_time
-            print 'monitor_info:',info
+            print '######monitor_info=%s,ip=%s'%(info,serverip)
         
     except:
         print 'eee:except'   
@@ -70,7 +70,7 @@ def monitorThread(serverip=SOCKET_SERVER_IP):
     f.write(mi)
     f.flush()
     f.close()    
-    print '###################finish monitor thread'
+    print '###################finish monitor thread,ip=%s'%(serverip)
 
 if __name__ == '__main__':
     #initial threads
@@ -83,7 +83,7 @@ if __name__ == '__main__':
             item.start()
         for item in thread_list:
             item.join()
-        #time.sleep(5)
+        time.sleep(0.5)
      
 
          
