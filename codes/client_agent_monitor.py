@@ -83,7 +83,7 @@ if __name__ == '__main__':
             item.start()
         for item in thread_list:
             item.join()
-        time.sleep(5)
+        #time.sleep(5)
      
 
          

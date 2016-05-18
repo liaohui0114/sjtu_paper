@@ -90,6 +90,8 @@ class MyClient:
 
 
 def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
+    #print 'downloadThread,thread_name=',threading.current_thread().getName()
+    
     try:
         client = MyClient(server_ip=serverip)   
         if client.connect():
@@ -108,12 +110,77 @@ def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
     except:
         taskQueue.put(taskid)   
     
-        
-        
-    print 'finish download,task_id:'+str(taskid)
+    
+    #time.sleep(random.randint(0,10))
+    #print 'finish download,task_id:'+str(taskid)
+    #print 'downloadThread,thread_name=',threading.current_thread().getName()
 
-if __name__ == '__main__':
-    #initial threads
+
+
+def weibullThread(taskid,file_name,file_addr_list,download_file_name):
+    print 'weibullThread,thread_name=%s,file_name=%s,taskid=%s'%(threading.current_thread().getName(),file_name,taskid)
+    st = time.time()
+    thread_list = []
+    for index in xrange(0,ERASURE_CODE_K):    
+        thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
+    
+    for index in xrange(0,len(thread_list)):
+        thread_list[index].start()
+    for index in xrange(0,len(thread_list)):
+        thread_list[index].join()  #block until all threads are done
+    
+
+    et = time.time()
+    delay = et-st
+    #print 'delay:',delay
+    #tmp_file_name =  "../log/erasure_code_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,file_name)
+    tmp_file_name = download_file_name
+    #print tmp_file_name
+
+    #record delay and file_ips,(start_timestamp,end_timestamp,delay,ip_1,ip2,***,ip_n)
+    f = open(tmp_file_name,"a")
+    downinfo = "%s\t%s\t%s"%(st,et,delay)
+    for i in xrange(ERASURE_CODE_K):
+        downinfo = downinfo + "\t" + file_addr_list[i]
+    downinfo = downinfo + "\n"
+    f.write(downinfo)
+    f.flush()
+    f.close()
+    print 'finish weibullThread,thread_name=%s,taskid=%s'%(threading.current_thread().getName(),taskid)
+
+##weibull distribution
+def weibull_main():
+    
+    schedulable = {'normal':False,'scheduled':True}
+    #taskQueue.put(10)
+    for key,val in schedulable.items():
+        for counter in xrange(0,10):
+
+            task_num = 10
+
+            while task_num > 0:
+                print '***********%s,file:%s,task_num:%s'%(key,counter,task_num)
+                taskid = counter#taskQueue.get()%10 #block until task was not empty
+                #print 'tasktttttttttttttttttt:',task_num,taskid
+                file_name = taskQueueDic[taskid]
+                #every request include WEIBULL_NUM_PER_REQUEST download task
+                for i in xrange(WEIBULL_NUM_PER_REQUEST):
+                    file_addr_list = monitorScheduler(fileAddrDic[file_name],val) ########scheduler##########
+                    print 'WEIBULL_NUM_PER_REQUEST,i=%s,file_addr_list=%s'%(i,file_addr_list)
+                    download_file_name =  "../log/erasure_code_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,file_name)
+                    download_thread = threading.Thread(target=weibullThread,args=(taskid,file_name,file_addr_list,download_file_name))
+                    download_thread.start()
+
+                    time.sleep(2) #because monitor was not that real-time
+                    
+
+                time.sleep(WEIBULL_INTER_ARRIVAL) ##inter arrival follow weibull distribution
+                task_num = task_num - 1
+            time.sleep(10) ##next task
+
+##normal
+def normal_main():
+        #initial threads
     threads = []
     for i in range(0,THREAD_NUM):
         threads.append(threading.Thread(None))
@@ -142,7 +209,7 @@ if __name__ == '__main__':
          
                 st = time.time()
                 thread_list = []
-                for index in xrange(0,ERASURE_CODE):    
+                for index in xrange(0,ERASURE_CODE_K):    
                     thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
                 
                 for index in xrange(0,len(thread_list)):
@@ -166,6 +233,11 @@ if __name__ == '__main__':
 
             task_num = task_num - 1
             time.sleep(10)
+
+if __name__ == '__main__':
+    #normal_main()
+    weibull_main()
+
          
     
 
