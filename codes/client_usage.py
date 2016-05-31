@@ -243,52 +243,44 @@ def usage_test_main():
     schedulable = {'normal':False,}
     #taskQueue.put(10)
     for key,val in schedulable.items():
-        task_num = 300
-        task_list = []
-        for counter in range(task_num):
-            task_list.append(random.randint(6,8))
-        for counter in task_list:
-            taskid = counter#taskQueue.get()%10 #block until task was not empty
-            #print 'tasktttttttttttttttttt:',task_num,taskid
-            file_name = taskQueueDic[taskid]
-            file_addr_list = monitorScheduler(fileAddrDic[file_name],val) ########scheduler##########
-            print 'fffffffffffffffffffffffffffffffffffff',file_addr_list  
-     
-            st = time.time()
-            thread_list = []
-            for index in xrange(0,ERASURE_CODE_K):    
-                thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
-            
-            for index in xrange(0,len(thread_list)):
-                thread_list[index].start()
-            for index in xrange(0,len(thread_list)):
-                thread_list[index].join()  #block until all threads are done
-            
-            et = time.time()
-            delay = et-st
-            #print 'delay:',delay
-            #tmp_file_name =  "../log/erasure_code_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,file_name)
-            #print tmp_file_name
-            tmp_file_name =  "../log/erasure_code_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K)
-            downinfo = "%s\t%s\t%s\t"%(st,et,delay)
-            print downinfo
-            for i in range(ERASURE_CODE_K):
-                if i==ERASURE_CODE_K-1:
-                    downinfo = downinfo+str(file_addr_list[i])+"\n"
-                else:
-                    downinfo = downinfo+str(file_addr_list[i])+"\t"
+        task_num = 20
+        while task_num > 0:
+            for counter in xrange(2,6):
+                taskid = counter#taskQueue.get()%10 #block until task was not empty
+                #print 'tasktttttttttttttttttt:',task_num,taskid
+                file_name = taskQueueDic[taskid]
+                file_addr_list = monitorScheduler(fileAddrDic[file_name],val) ########scheduler##########
+                print 'fffffffffffffffffffffffffffffffffffff',file_addr_list  
+         
+                st = time.time()
+                thread_list = []
+                for index in xrange(0,ERASURE_CODE_K):    
+                    thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
+                
+                for index in xrange(0,len(thread_list)):
+                    thread_list[index].start()
+                for index in xrange(0,len(thread_list)):
+                    thread_list[index].join()  #block until all threads are done
+                
+                et = time.time()
+                delay = et-st
+                #print 'delay:',delay
+                tmp_file_name =  "../log/erasure_code_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,file_name)
+                #print tmp_file_name
 
-            f = open(tmp_file_name,"a")
-            #downinfo = "%s\t%s\t%s\t%s\t%s\n"%(st,et,delay,file_addr_list[0],file_addr_list[1])
-            f.write(downinfo)
-            f.flush()
-            f.close()
+                f = open(tmp_file_name,"a")
+                downinfo = "%s\t%s\t%s\t%s\t%s\n"%(st,et,delay,file_addr_list[0],file_addr_list[1])
+                f.write(downinfo)
+                f.flush()
+                f.close()
+
+
+            task_num = task_num - 1
             
 
 if __name__ == '__main__':
     #normal_main()
-    #weibull_main()
-    usage_test_main()
+    weibull_main()
 
          
     

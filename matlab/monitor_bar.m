@@ -40,8 +40,8 @@ file_list = {'0.png','1.jpg','2.zip','3.zip','4.tar.gz','5.zip','6.deb','7.tgz',
 %prefix_down_list = {'../log/'};
 
 
-prefix_downinfo = '../log/remote-0508/erasurecode-8-4/log/';
-prefix_down_list= {'../log/remote-0508/erasurecode-8-4/log/erasure_code_8_4_normal_','../log/remote-0508/erasurecode-8-4/log/erasure_code_8_4_scheduled_'};
+prefix_downinfo = '../log/remote-0518/weibull-erasurecode-6-3/log/';
+prefix_down_list= {'../log/remote-0518/weibull-erasurecode-6-3/log/erasure_code_6_3_normal_','../log/remote-0518/weibull-erasurecode-6-3/log/erasure_code_6_3_scheduled_'};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -72,7 +72,7 @@ for counter=1:length(file_list);
    
    
     
-    downinfo_name = strcat(prefix_downinfo,'downloadinfo-',file_list{counter},'.txt');
+    downinfo_name = strcat(prefix_downinfo,'downloadinfo-',file_list{counter},'.txt')
     fid = fopen(downinfo_name);
     while ~feof(fid);
         tmpInfoStr = fgetl(fid);
@@ -178,7 +178,7 @@ for i=1:length(file_list);
     
     [start_time,end_time,delay,ip1,ip2,ip3,ip4]=textread(tmp_downinfo_name,'%f%f%f%s%s%s%s');
     delay = sort(delay,1)
-    delay = delay(1:55)
+    %delay = delay(1:10)
     tmp_downinfo_name
     length(delay)
     tmp_total = [tmp_total,sum(delay)];

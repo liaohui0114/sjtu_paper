@@ -110,7 +110,6 @@ if __name__=="__main__":
         f.write(sysStr)
         f.flush()
         f.close()
-        time.sleep(2) #5s interval
         
     print 'close'
     
