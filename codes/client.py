@@ -13,7 +13,7 @@ taskCounter = 1
 
 ######################scheduler####################################################
 #erasure code:(n,k) = (Erasure_code_n,erasure_code,k)
-def monitorScheduler(ip_list,isScheduled = False):
+def monitorScheduler(ip_list,isScheduled = False,ERASURE_CODE_N=2,ERASURE_CODE_K=1):
     #print 'ip_list,11111111111',ip_list
     ip_list = ip_list[0:ERASURE_CODE_N]
     #print 'ip_list,22222222222',ip_list
@@ -117,17 +117,22 @@ def downloadThread(taskid,file_name,serverip=SOCKET_SERVER_IP):
 
 
 
-def weibullThread(taskid,file_name,file_addr_list,download_file_name):
+def weibullThread(taskid,file_name,file_addr_list,download_file_name,ERASURE_CODE_N,ERASURE_CODE_K):
     print 'weibullThread,thread_name=%s,file_name=%s,taskid=%s'%(threading.current_thread().getName(),file_name,taskid)
     st = time.time()
     thread_list = []
     for index in xrange(0,ERASURE_CODE_K):    
         thread_list.append(threading.Thread(target=downloadThread,args=(taskid,file_name,file_addr_list[index])))
+        #pass
     
     for index in xrange(0,len(thread_list)):
         thread_list[index].start()
+        #pass
+        
     for index in xrange(0,len(thread_list)):
         thread_list[index].join()  #block until all threads are done
+        #pass
+        
     
 
     et = time.time()
@@ -147,37 +152,6 @@ def weibullThread(taskid,file_name,file_addr_list,download_file_name):
     f.flush()
     f.close()
     print 'finish weibullThread,thread_name=%s,taskid=%s'%(threading.current_thread().getName(),taskid)
-
-##weibull distribution
-def weibull_main():
-    
-    schedulable = {'normal':False,'scheduled':True}
-    #taskQueue.put(10)
-    for key,val in schedulable.items():
-        for counter in xrange(0,10):
-
-            task_num = 10
-
-            while task_num > 0:
-                print '***********%s,file:%s,task_num:%s'%(key,counter,task_num)
-                taskid = counter#taskQueue.get()%10 #block until task was not empty
-                #print 'tasktttttttttttttttttt:',task_num,taskid
-                file_name = taskQueueDic[taskid]
-                #every request include WEIBULL_NUM_PER_REQUEST download task
-                for i in xrange(WEIBULL_NUM_PER_REQUEST):
-                    file_addr_list = monitorScheduler(fileAddrDic[file_name],val) ########scheduler##########
-                    print 'WEIBULL_NUM_PER_REQUEST,i=%s,file_addr_list=%s'%(i,file_addr_list)
-                    download_file_name =  "../log/erasure_code_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,file_name)
-                    download_thread = threading.Thread(target=weibullThread,args=(taskid,file_name,file_addr_list,download_file_name))
-                    download_thread.start()
-
-                    time.sleep(2) #because monitor was not that real-time
-                    
-
-                time.sleep(WEIBULL_INTER_ARRIVAL) ##inter arrival follow weibull distribution
-                task_num = task_num - 1
-            time.sleep(10) ##next task
-
 ##normal
 def normal_main():
         #initial threads
@@ -283,12 +257,109 @@ def usage_test_main():
             f.write(downinfo)
             f.flush()
             f.close()
+##weibull distribution
+def weibull_main2():
+    
+    schedulable = {'normal':False,'scheduled':True}
+    #taskQueue.put(10)
+    for key,val in schedulable.items():
+        for counter in xrange(0,10):
+
+            task_num = 10
+
+            while task_num > 0:
+                print '***********%s,file:%s,task_num:%s'%(key,counter,task_num)
+                taskid = counter#taskQueue.get()%10 #block until task was not empty
+                #print 'tasktttttttttttttttttt:',task_num,taskid
+                file_name = taskQueueDic[taskid]
+                #every request include WEIBULL_NUM_PER_REQUEST download task
+                for i in xrange(WEIBULL_NUM_PER_REQUEST):
+                    file_addr_list = monitorScheduler(fileAddrDic[file_name],val) ########scheduler##########
+                    print 'WEIBULL_NUM_PER_REQUEST,i=%s,file_addr_list=%s'%(i,file_addr_list)
+                    download_file_name =  "../log/erasure_code_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,file_name)
+                    download_thread = threading.Thread(target=weibullThread,args=(taskid,file_name,file_addr_list,download_file_name))
+                    download_thread.start()
+
+                    time.sleep(2) #because monitor was not that real-time
+                    
+
+                time.sleep(WEIBULL_INTER_ARRIVAL) ##inter arrival follow weibull distribution
+                task_num = task_num - 1
+            time.sleep(10) ##next task
+def weibull_main():
+    
+    schedulable = {'normal':False,'scheduled':True}
+    #taskQueue.put(10)
+    for erasure_code_index in ERASURE_CODE_LIST:
+        ERASURE_CODE_N = erasure_code_index[0]
+        ERASURE_CODE_K = erasure_code_index[1]
+        for key,val in schedulable.items(): #scheduled or normal
+            for number in DOWNLOAD_LIST:
+                for counter in xrange(0,number):
+                    print 'ccccccccccc,erasure_n:%s,erasue_k:%s,scheduled:%s,number:%s,counter:%s'%(ERASURE_CODE_N,ERASURE_CODE_K,key,number,counter)
+                    if counter%10 == 9:
+                        taskid = 7
+                    else:
+                        taskid = 3
+                    print '***********%s,file:%s,task_num:%s'%(key,taskid,number)
+                    #taskid = counter#taskQueue.get()%10 #block until task was not empty
+                    
+                    file_name = taskQueueDic[taskid]
+                    #every request include WEIBULL_NUM_PER_REQUEST download task
+                    for i in xrange(WEIBULL_NUM_PER_REQUEST):
+                        file_addr_list = monitorScheduler(fileAddrDic[file_name],val,ERASURE_CODE_N,ERASURE_CODE_K) ########scheduler##########
+                        print 'WEIBULL_NUM_PER_REQUEST,i=%s,file_addr_list=%s'%(i,file_addr_list)
+                        download_file_name =  "../log/erasure_code_%s_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,number,file_name)
+                        download_thread = threading.Thread(target=weibullThread,args=(taskid,file_name,file_addr_list,download_file_name,ERASURE_CODE_N,ERASURE_CODE_K))
+                        download_thread.start()
+
+                        time.sleep(2) #because monitor was not that real-time
+                        
+
+                    time.sleep(WEIBULL_INTER_ARRIVAL) ##inter arrival follow weibull distribution
+                
+
+def realtrace_main():
+    
+    schedulable = {'normal':False,'scheduled':True}
+    #taskQueue.put(10)
+    for erasure_code_index in ERASURE_CODE_LIST:
+        ERASURE_CODE_N = erasure_code_index[0]
+        ERASURE_CODE_K = erasure_code_index[1]
+        for key,val in schedulable.items(): #scheduled or normal
+            for number in DOWNLOAD_LIST:
+                for counter in xrange(0,number):
+                    print 'ccccccccccc,erasure_n:%s,erasue_k:%s,scheduled:%s,number:%s,counter:%s'%(ERASURE_CODE_N,ERASURE_CODE_K,key,number,counter)
+                    if counter%10 == 9:
+                        taskid = 7
+                    else:
+                        taskid = 3
+                    #print '***********%s,file:%s,task_num:%s'%(key,taskid,number)
+                    #taskid = counter#taskQueue.get()%10 #block until task was not empty
+                    
+                    file_name = taskQueueDic[taskid]
+                    #every request include WEIBULL_NUM_PER_REQUEST download task
+                    for i in xrange(3):
+                        file_addr_list = monitorScheduler(fileAddrDic[file_name],val,ERASURE_CODE_N,ERASURE_CODE_K) ########scheduler##########
+                        print 'realtrace_NUM_PER_REQUEST,i=%s,file_addr_list=%s'%(i,file_addr_list)
+                        download_file_name =  "../log/real_erasure_code_%s_%s_%s_%s_%s.txt"%(ERASURE_CODE_N,ERASURE_CODE_K,key,number,file_name)
+                        download_thread = threading.Thread(target=weibullThread,args=(taskid,file_name,file_addr_list,download_file_name,ERASURE_CODE_N,ERASURE_CODE_K))
+                        download_thread.start()
+
+                        time.sleep(2) #because monitor was not that real-time
+                        
+
+                    time.sleep(1) ##inter arrival follow weibull distribution
+                
+
             
 
 if __name__ == '__main__':
     #normal_main()
-    #weibull_main()
-    usage_test_main()
+    #usage_test_main()
+    weibull_main()
+    realtrace_main()
+    
 
          
     
